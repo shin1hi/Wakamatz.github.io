@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="ja">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+		<title>ラムダ計算と圏論</title>
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/beige.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+			
+			
+		</script>
+		
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+		<style>
+		.reveal p {
+			margin-left: 40px;
+			margin-bottom: 10px;
+			line-height: 1.2em;
+		}
+		.reveal ul li {
+			margin-bottom: 10px;
+		}
+		</style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- タイトル -->
+				<section>
+					<h1 style="font-size:100px;margin-bottom:10px">ラムダ計算と圏論</h2>
+					<br><br><br>
+					<p align="right">
+						<small><a href="http://twitter.com/Wakamatz">@Wakamatz</a></small>
+					</p>
+				</section>
+
+				<!-- ラムダ計算とは -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ計算とは（１）</h2>
+						<ul>
+						<li>1930年代にチャーチとクリーネによって考案された</li>
+						<li>関数を「計算規則」としての観点から抽象化したシステム</li>
+						<li>もともとはチャーチが計算の基礎付のために考案したが挫折</li>
+						<li>Lisp、ML、Haskellなど関数型プログラミング言語の理論的な<br>基礎になっている</li>
+						<ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ計算とは（２）</h2>
+						<ul>
+						<li>シンプルなプログラミング言語</li>
+						<li>予約語は$ \lambda $のみ</li>
+						<li>すべてが関数</li>
+						<ul><li>真偽値も、数も、条件分岐もすべて関数</li><ul>
+						<ul>
+					</section>
+				</section>
+				<!-- ラムダ項 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ式</h2>
+						<p>
+						$$\begin{eqnarray}
+						数式：　& f(x) =x+1 \\
+						\\
+						ラムダ式：　& \lambda x.x+1 \\
+						\end{eqnarray}$$
+						</p>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ項</h2>
+						<p style="margin-bottom: 50px;">ラムダ計算では<b>ラムダ項</b>のみ扱う</p>
+						<ul>
+						<li>変数： $x, y, z, ･･･ $</li>
+						<li>ラムダ抽象： $ \lambda x.M $</li>
+						<li>関数適用： $ M N $</li>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ項（BNF)</h2>
+						<p>
+						$$\begin{eqnarray}
+						\langle term \rangle  :: &=& \langle variable \rangle \\
+						&|& (\langle term \rangle \  \langle term \rangle) \\
+						&|& (\lambda \langle variable \rangle .\langle term \rangle)
+						\end{eqnarray}$$
+						
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ項の例</h2>
+						$$\begin{eqnarray}
+						& x \\
+						& (\lambda x.x)  \\
+						& (f \  x)  \\
+						& (\lambda x.x \  f)  \\
+						& ((\lambda f.(\lambda x.(f \  x))) \ a \ b) \\
+						\end{eqnarray}$$
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ項の省略記法</h2>
+						<ul>
+						<li>$ (\lambda x.(\lambda y. x)) $ は $ \lambda x.\lambda y. x $ と書ける</li>
+						<ul><li>括弧を外してもあいまいさがないときは外せる。</li></ul>
+						<br>
+						<li>$ \lambda x.\lambda y. x $ を $ \lambda x y. x $ と書く</li>
+						<ul><li>こちらは省略記法</li></ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ項の計算</h2>
+						<p style="text-align:left">$ t_1 \  t_2 $という項があって、$ t_1 $がλ抽象だったとき、λ抽象の項の中の引数を $ t_2 $ で置き換える</p>
+						<br>
+						$$\begin{eqnarray}
+						\underline{(\lambda x.x)} \  (\lambda yz.(y \  z)) \rightarrow (\lambda yz.(y \  z))
+						& \end{eqnarray}$$
+						<br>
+						<p style="text-align:left">※$ \beta $簡約と呼ぶ</p>
+					</section>
+				</section>
+				<!-- カリー化 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 100px;">カリー化</h2>
+						<ul style="margin-bottom: 20px;font-size:40px">
+							<li style="text-align:left;">2引数の関数</li>
+							<ul style="margin-bottom: 20px"><li style="font-size:30px;text-align:left;">$ \lambda(x,y).2*x+y $</li></ul>
+							<li style="text-align:left;">ラムダ計算では2引数以上の関数は定義できない。</li>
+							<li style="text-align:left;">1引数の関数の組合せで定義する。</li>
+							<ul style="margin-bottom: 20px"><li style="font-size:30px;text-align:left;">$ \lambda y.2*x+y $</li></ul>
+							<ul style="margin-bottom: 20px"><li style="font-size:30px;text-align:left;">$ \lambda x.(\lambda y.2*x+y) $</li></ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">カリー化した関数の計算</h2>
+						<ul style="margin-bottom: 20px">
+							<li style="font-size:40px;text-align:left;">$ (\underline{\lambda x}.(\lambda y.2* \underline{x}+y)) \ \underline{3} \ 4 $</li>
+							<li style="font-size:40px;text-align:left;">$ (\underline{\lambda y}.2*3+ \underline{y}) \ \underline{4} $</li>
+							<li style="font-size:40px;text-align:left;">$ 2*3+4=10 $</li>
+						</ul>
+						<br>
+						<br>
+						<p style="text-align:left;">※関数を引数として渡せる、または戻り値として返せる関数を<br><b>高階関数</b>と呼ぶ</p>
+					</section>
+				</section>
+				<!-- 型 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 100px;">自然数</h2>
+						<p style="text-align:left">ラムダ計算の自然数を次のように定義する。（チャーチ数）</p>
+						$$\begin{eqnarray}
+						0 &:=& \lambda sz.z \\
+						1 &:=& \lambda sz.s \ z \\
+						2 &:=& \lambda sz.s \ (s \ z) \\
+						3 &:=& \lambda sz.s \ (s \ (s \ z)) \\
+						& ・・・
+						& \end{eqnarray}$$
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ計算における足し算</h2>
+						<p style="text-align:left">ラムダ計算の足し算は次のように定義される。</p>
+						$ \lambda mnsz.m \ s \  (n \ s \ z) $
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">Bool</h2>
+						$$\begin{eqnarray}
+						{\rm true} &:=& \lambda tf.t \\
+						{\rm false} &:=& \lambda tf.f \\
+						\end{eqnarray}$$
+						<br>
+						$$\begin{eqnarray}
+						{\rm if} \  t_1 \  {\rm then} \  t_2 \  {\rm else} \  t_3 = t_1 \  t_2 \  t_3
+						\end{eqnarray}$$
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">タプル</h2>
+						$$\begin{eqnarray}
+						(t_1,t_2) &:=& \lambda x.x \  t_1 \  t_2 \\
+						\end{eqnarray}$$
+						<br>
+						$$\begin{eqnarray}
+						{\rm fst} &:=& \lambda t.t \  {\rm true} \\
+						{\rm snd} &:=& \lambda t.t \  {\rm false}
+						\end{eqnarray}$$
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">リスト</h2>
+						$$\begin{eqnarray}
+						{\rm nil} &:=& \lambda cn.n \\
+						{\rm cons} &:=& \lambda htcn.c \  n \  (t \  c \  n) \\
+						\end{eqnarray}$$
+						<br>
+						$$\begin{eqnarray}
+						[x,y,z] &:=& ({\rm cons} \  x ({\rm cons} \  y ({\rm cons} \  z \  {\rm nil})))
+						\end{eqnarray}$$
+					</section>
+				</section>
+				<!-- ラムダ計算の処理系 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ計算の処理系</h2>
+						<p><a href="http://labs.orezdnu.org/lambda/">Lambda calculus in JavaScript syntax
+						<br>http://labs.orezdnu.org/lambda/</a></p>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ計算の訓練</h2>
+						<p style="text-align:left">"ラムダ計算で計算を書く訓練をしておくことは, 任意の計算を関数のみを使って(他の制御構文を用いずに)
+						書くときに役立ちます. ふつうに書いたら煩雑な処理を, 関数型言語のやり方で書くとすっきりすることが多々あり,
+						コードを自由自在に書くためには必須の考え方と言えるでしょう."</p>
+						<p style="text-align:right">cf.<a href="http://d.hatena.ne.jp/tarao/20100208/1265605429">貳佰伍拾陸夜日記</a>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 100px;">ラムダ計算をたくさん書こう！</h2>
+					</section>
+				</section>
+
+				<!-- 圏論 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 100px;">圏論とは</h2>
+						<ul style="margin-bottom: 20px;font-size:40px">
+						<li style="text-align:left;">Felix Kleinの唱えたエルランゲン・プログラムの流れから生まれた。</li>
+						<ul style="margin-bottom: 20px"><li style="font-size:30px;text-align:left;">エルランゲン・プログラム・・・幾何学とは変換によって変わらないもの（不変量）の研究だとする考え方。</li></ul>
+						<li style="margin-bottom: 20px;text-align:left;">数学的な構造を保つ変換に対する不変な性質を研究するための道具</li>
+						<li style="margin-bottom: 20px;text-align:left;">論理学、コンピューターサイエンス、言語学など多くの分野にも応用されている。</li>
+						</ul>
+					</section>
+				</section>
+				<!-- 圏の定義 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 50px;">圏$ {\cal C}$の定義</h2>
+						<ul style="margin-bottom: 20px;font-size:30px;">
+						<li>対象： $ Obj \ {\cal C} = \{A,B,C,...\} $</li>
+						<li>射： $ Arrow \  {\cal C} = \{f,g,h,...\} $</li>
+						<li>射 $ f$ に対し対象$ {\rm dom} (f),{\rm cod} (f)$ が与えられ、$ f $ の定義域、<br> 余定義域と呼ぶ。</li>
+						<ul><li style="text-align:left;"> $ f:A \rightarrow B $ のとき $ {\rm dom} (f)=A,{\rm cod} (f)=B $</li></ul>
+						<li>射 $ f:A \rightarrow B $ と射 $ g:B \rightarrow C $ が与えられたとき、
+						合成射$ g \circ f:A \rightarrow C $ が存在する。</li>
+						<li>任意の対象 $ A $ に対し、恒等射 $ {\rm id}_A:A \rightarrow A $ が存在する。</li>
+						<li>射の合成に対して<font color="blue">結合律</font>が成り立つ。</li>
+						<ul><li style="text-align:left;"> $ h \circ (g \circ f) = (h \circ g) \circ f $ </li></ul>
+						<li>任意の射 $ f:A \rightarrow B $に対して<font color="blue">恒等律</font>が成り立つ。</li>
+						<ul><li style="text-align:left;"> $ f \circ {\rm id}_A = f = {\rm id}_B \circ f $ </li></ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 50px;">1点集合が2つある圏</h2>
+						$$
+						\begin{xy}
+						\xymatrix {
+						\{ x \}  \ar@(ul,ur)[]^{\rm id} \ar[r]^{f} & \{ y \} \ar@(ul,ur)[]^{\rm id}
+						}
+						\end{xy}
+						$$
+						<ul style="margin-bottom: 20px;font-size:30px;">
+						<li>合成できる射がないので結合律は成り立つ</li>
+						<li>恒等律は自明</li>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 50px;">集合の圏$ {\cal Set}$</h2>
+						<ul style="margin-bottom: 20px;font-size:30px;">
+						<li>対象： すべての集合</li>
+						<li>射： すべての関数</li>
+						<li> $ f:A \rightarrow B $ のとき $ {\rm dom} (f)=A,{\rm cod} (f)=B $</li>
+						<li>関数 $ f:A \rightarrow B $ と関数 $ g:B \rightarrow C $ に対し、
+						合成射$ g \circ f:A \rightarrow C $ は通常の合成関数
+						<ul><li style="text-align:left;"> $ f: x \mapsto y $ かつ $ g: y \mapsto z $ならば$ g \circ f: x \mapsto z$ </li></ul>
+						<li>任意の集合 $ A $ に対し、恒等関数 $ {\rm id}_A:A \rightarrow A $ が存在する。</li>
+						<li>関数の合成に対して結合律が成り立つ。</li>
+						<ul><li style="text-align:left;"> $ h \circ (g \circ f) = (h \circ g) \circ f $ </li></ul>
+						<li>任意の関数 $ f:A \rightarrow B $に対して恒等律が成り立つ。</li>
+						<ul><li style="text-align:left;"> $ f \circ {\rm id}_A = f = {\rm id}_B \circ f $ </li></ul>
+						</ul>
+					</section>
+				</section>
+				<!-- 可換図式 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 50px;">可換図式</h2>
+						$$
+						\begin{xy}
+						\xymatrix {
+						X_1 \ar[d]_{f} \ar[r]^{g_1} & X_2 \ar[d]^{f'} \\
+						Y_1 \ar[r]_{g_2} & Y_2
+						}
+						\end{xy}
+						$$
+						$ g_2 \circ f = f' \circ g_1 $ 
+					</section>
+					<section>
+						<h2 style="margin-bottom: 50px;">可換図式を用いて<br>問題を解く</h2>
+						$$
+						\begin{xy}
+						\xymatrix {
+						X_1 \ar[d]_{h_1} \ar[r]^{f_1} & X_2 \ar[d]^{h_2} \ar[r]^{f_2} & X_3 \ar[d]^{h_3} \\
+						Y_1 \ar[r]_{g_1} & Y_2 \ar[r]_{g_2} & Y_3
+						}
+						\end{xy}
+						$$
+						<p style="font-size:30px;text-align:left;">$ g_1 \circ h_1=h_2 \circ f_1 $ かつ $ g_2 \circ h_2=h_3 \circ f_2 $
+						のとき<br>
+						$ g_2 \circ g_1 \circ h_1=h_3 \circ f_2 \circ f_1 $</p>
+						<br>
+						
+						<ol>
+							<li style="font-size:30px;" class="fragment">$ g_1 \circ h_1=h_2 \circ f_1 \  $より$ \  g_2 \circ g_1 \circ h_1=g_2 \circ h_2 \circ f_1 $</li>
+							<li style="font-size:30px;" class="fragment">$ g_2 \circ h_2=h_3 \circ f_2 \  $より$ \  g_2 \circ h_2 \circ f_1=h_3 \circ f_2 \circ f_1 $</li>
+							<li style="font-size:30px;" class="fragment">1.,2.より$ \  g_2 \circ g_1 \circ h_1=h_3 \circ f_2 \circ f_1 \  {}_{\square} $</li>
+						</ol>
+					</section>
+				</section>
+				<!-- いろいろな対象 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 80px;">直積</h2>
+						<p>タプルの圏論における定式化</p>
+						<br>
+						$$
+						\begin{xy}
+						\xymatrix {
+						A & A \times B \ar[l]_{\pi_1^{A \times B}} \ar[r]^{\pi_2^{A \times B}}
+						 & B \\
+						 & X \ar[ul]^{f}  \ar[ur]_{g} \ar@{.>}[u]_{p}
+						}
+						\end{xy}
+						$$
+						<br>
+						<ul>
+						<li style="font-size:30px;text-align:left;">対象$A,B$の直積$ A \times B$とは、$\pi_1^{A \times B}:A \times B \rightarrow A$と
+						$\pi_2^{A \times B}:A \times B \rightarrow B$を持つ対象$A \times B$で、次の性質を満たす。</li>
+						<ul><li style="font-size:25px;">任意の射$ f:X \rightarrow A $と$ g:X \rightarrow B $があるとき、
+						上の図式を可換に<br>する<font color="blue">射$ p:X \rightarrow A \times B$がただ一つ存在</font>する。</li></ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 80px;">べき対象</h2>
+						<p>関数適用とカリー化の圏論における定式化</p>
+						<p>
+						$$
+						\begin{xy}
+						\xymatrix {
+						B^A \times A \ar[r]^{{\rm App}_{A,B}} & B & B^A \\
+						C \times A \ar[u]^{p \times {\rm id}_A} \ar[ur]_{f} & & C \ar@{.>}[u]_{p}
+						}
+						\end{xy}
+						$$
+						<ul>
+						<li style="font-size:30px;text-align:left;">対象$A$から$B$へのべき対象$ B^A $とは、
+						射 $ {\rm App}_{A,B}:B^A \times A \rightarrow B $ を伴った対象$ B^A $で次の性質を満たす。</li>
+						<ul><li style="font-size:25px;">任意の対象$C$と射$ f:C \times A \rightarrow B $があるとき、
+						上の図式を可換に<br>する射$ p:C \rightarrow B^A $がただ一つ存在する。</li></ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="margin-bottom: 80px;">終対象</h2>
+						<p>集合の圏$ \cal Set $で1点集合に相当する。</p>
+						$$
+						\begin{xy}
+						\xymatrix {
+						A \ar@{.>}[r]^{1} & 1
+						}
+						\end{xy}
+						$$
+						<ul>
+						<li style="font-size:30px;text-align:left;">任意の対象$A$について、$A$から1への射が唯一つ存在する。</li>
+						</ul>
+					</section>
+				</section>
+				<!-- カルテシアン閉圏 -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 80px;">カルテシアン閉圏(ccc)</h2>
+						<ul>
+							<li>カルテシアン閉圏(Cartesian closed category)とは、次の3つの条件を持つ圏のことである。</li>
+							<ul>
+								<li>終対象を持つ。</li>
+								<li>任意の対象$ A,B $に対して、直積$　A \times B $を持つ。</li>
+								<li>任意の対象$ A,B $に対して、べき対象$　B^A $を持つ。</li>
+							</ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="font-size:65px;margin-bottom: 80px;">ラムダ計算はカルテシアン閉圏(1)</h2>
+						<ul>
+							<li>終対象を持つ。</li>
+							<ul>
+								<li>$ \lambda z. z$は終対象。</li>
+								<ul><li>任意のラムダ項$t$に対し、$ (\lambda x z. z) \ t \mathop{\rightarrow} \limits_{\beta} \lambda z.z$</li></ul>
+							</ul>
+							<li>任意の対象$ A,B $に対して、直積$　A \times B $を持つ。</li>
+							<ul><li>対象$ A,B $のラムダ項$t_1,t_2$に対し、タプル$ \lambda t.t \  t_1 \  t_2$を<br>とる。</li></ul>
+						</ul>
+					</section>
+					<section>
+						<h2 style="font-size:65px;margin-bottom: 80px;">ラムダ計算はカルテシアン閉圏(2)</h2>
+						<ul>
+							<li style="font-size:30px;">任意の対象$ A,B $に対して、べき対象$　B^A $を持つ。</li>
+						</ul>
+						<p style="font-size:25px;margin-bottom: 50px;">
+						$$
+						\begin{eqnarray}
+							{\rm apply}:B^A \times A &\rightarrow& B \\
+							(f,x) &\mapsto& f(x) \\
+							\\
+							{\rm curry}(g):C &\rightarrow& B^A \\
+							{\rm curry}(g)(c) &\mapsto& g(c,\cdot)
+						\end{eqnarray}
+						$$
+						</p>
+						<p>
+						$$
+						\begin{xy}
+						\xymatrix {
+						B^A \times A \ar[r]^{\rm apply} & B & B^A \\
+						C \times A \ar[u]^{{\rm curry}(g) \times {\rm id}_A} \ar[ur]_{g} & & C \ar@{.>}[u]_{{\rm curry}}
+						}
+						\end{xy}
+						$$
+						</p>
+					</section>
+				</section>
+				<!-- 終わり -->
+				<section>
+					<section>
+						<h2 style="margin-bottom: 80px;">圏論を学ぼう！</h2>
+						<p style="font-size:40px;left-margin:70px;text-align:left;">圏論の思考法を身につければ、プログラミングをより<br>上位の階層から見下ろすことができる！．．．かも。</p>
+					</section>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+		<script type="text/javascript"
+			src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+		</script>
+		<script src="js/xypic.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				
+				// パターン：Cube - Page - Concave - Zoom - Linear - Fade - None - Default
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/math/math.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
